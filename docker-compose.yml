@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:14-alpine  # Obraz PostgreSQL
+    environment:
+      POSTGRES_USER: postgres  # Domyślny użytkownik
+      POSTGRES_PASSWORD: postgres  # Hasło użytkownika
+    ports:
+      - "5432:5432"  # Mapowanie portów: host:kontener
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Miejsce na dane, aby przetrwały restart kontenera
+
+volumes:
+  postgres_data:
+    driver: local  # Trwały wolumen danych
