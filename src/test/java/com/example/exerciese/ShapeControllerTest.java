@@ -43,6 +43,7 @@ public class ShapeControllerTest {
         shapeRequest.setType("Circle");
         List<Double> perimeters = new ArrayList<>();
         perimeters.add(5.0);
+        perimeters.add(6.0);
         shapeRequest.setPerimeters(perimeters);
 
 
@@ -61,6 +62,7 @@ public class ShapeControllerTest {
         assertEquals(shapeRequest.getPerimeters(), savedShapeCircle.getPerimeters());
         assertEquals(shapeRequest.getType(), savedShapeCircle.getClass().getSimpleName());
     }
+
 
 }
 
