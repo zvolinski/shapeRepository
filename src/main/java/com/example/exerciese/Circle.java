@@ -1,17 +1,20 @@
 package com.example.exerciese;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.stereotype.Component;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @SuperBuilder
 @Entity
+@Component("Circle")
 @DiscriminatorValue("CIRCLE")
 public class Circle extends Shape {
 

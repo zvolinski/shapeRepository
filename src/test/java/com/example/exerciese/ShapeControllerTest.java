@@ -37,13 +37,12 @@ public class ShapeControllerTest {
     private ShapeController shapeController;
 
     @Test
-    void itShouldSaveShapeCircle() throws Exception {
+    void itShouldSaveShape() throws Exception {
 
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
         List<Double> perimeters = new ArrayList<>();
         perimeters.add(5.0);
-        perimeters.add(6.0);
         shapeRequest.setPerimeters(perimeters);
 
 

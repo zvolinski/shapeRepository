@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ import java.util.List;
 @Getter
 @Setter
 @SuperBuilder
-//@Component
+@Component
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
@@ -39,7 +40,6 @@ public abstract class Shape {
     private List<Double> perimeters;
 
     abstract double calculateArea();
-
     abstract double calculatePerimeter();
 
 }
