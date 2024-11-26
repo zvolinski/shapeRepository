@@ -8,8 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @NonNullApi
-
 public interface ShapeRepository extends JpaRepository<Shape, Long> {
-
 
 }

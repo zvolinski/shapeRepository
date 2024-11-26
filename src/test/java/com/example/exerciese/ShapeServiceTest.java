@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
@@ -24,7 +25,7 @@ public class ShapeServiceTest {
     private ShapeService shapeService;
 
     @Test
-    void itShouldSave() {
+    void itShouldSaveShape() {
         //Given
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
@@ -34,7 +35,7 @@ public class ShapeServiceTest {
 
 
         //When
-        shapeService.saveCircle(shapeRequest);
+        shapeService.saveShape(shapeRequest);
 
         //Then
         verify(shapeRepository, times(1)).save(any(Shape.class));
