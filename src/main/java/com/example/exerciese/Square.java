@@ -1,6 +1,7 @@
 package com.example.exerciese;
 
 import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,8 +14,15 @@ import org.springframework.stereotype.Component;
 @Setter
 @SuperBuilder
 @Component("Square")
-@DiscriminatorValue("SQUARE")
+@Entity
+@DiscriminatorValue("Square")
 public class Square extends Shape {
+
+    @Override
+    public Shape clone() {
+        return new Square();
+    }
+
     @Override
     public double calculateArea() {
         return getPerimeters().get(0) * getPerimeters().get(0);

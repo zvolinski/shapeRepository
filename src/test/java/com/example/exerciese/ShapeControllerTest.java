@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
@@ -54,15 +56,39 @@ public class ShapeControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        Shape circle = objectMapper.readValue(response, Circle.class);
-        Shape savedShapeCircle = shapeRepository.save(circle);
+        Shape savedShapeCircle = objectMapper.readValue(response, Circle.class);
 
 
         assertEquals(shapeRequest.getPerimeters(), savedShapeCircle.getPerimeters());
         assertEquals(shapeRequest.getType(), savedShapeCircle.getClass().getSimpleName());
     }
 
+    @Test
+    void itShouldGetShapeByType() throws Exception {
 
+        ShapeRequest shapeRequest = new ShapeRequest();
+        shapeRequest.setType("Circle");
+        List<Double> perimeters = new ArrayList<>();
+        perimeters.add(5.0);
+        perimeters.add(6.0);
+        shapeRequest.setPerimeters(perimeters);
+
+
+        mockMvc.perform(post("/api/v1/shapes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shapeRequest)))
+                .andExpect(status().isOk());
+
+
+        mockMvc.perform(get("/api/v1/shapes")
+                        .param("type", shapeRequest.getType())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].type").value("Circle"))
+                .andExpect(jsonPath("$[0].perimeters[0]").value(5.0))
+                .andExpect(jsonPath("$[0].perimeters[1]").value(6.0));
+
+    }
 }
 
 

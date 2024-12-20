@@ -40,4 +40,19 @@ public class ShapeServiceTest {
         //Then
         verify(shapeRepository, times(1)).save(any(Shape.class));
     }
+
+
+    @Test
+    void itShouldGetShapeByType() {
+
+        ShapeRequest shapeRequest = new ShapeRequest();
+        shapeRequest.setType("Circle");
+        List<Double> perimeter = new ArrayList<>();
+        perimeter.add(5.00);
+        shapeRequest.setPerimeters(perimeter);
+
+        shapeService.saveShape(shapeRequest);
+        shapeService.getShapesByType(shapeRequest.getType());
+
+    }
 }
