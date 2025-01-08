@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @SuperBuilder
 @Component("Square")
 @Entity
-@DiscriminatorValue("Square")
+@DiscriminatorValue("SQUARE")
 
 public class Square extends Shape {
 
@@ -23,9 +23,6 @@ public class Square extends Shape {
     public Shape clone() {
         return new Square();
     }
-
-@DiscriminatorValue("SQUARE")
-public class Square extends Shape {
 
     @Override
     public double calculateArea() {
