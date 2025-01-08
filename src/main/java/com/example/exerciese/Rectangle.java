@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 @Entity
 @Component("Rectangle")
 @DiscriminatorValue("Rectangle")
+@DiscriminatorValue("RECTANGLE")
+
 public class Rectangle extends Shape {
 
     @Override

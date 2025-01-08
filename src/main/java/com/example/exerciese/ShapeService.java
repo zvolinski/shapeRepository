@@ -2,7 +2,6 @@ package com.example.exerciese;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +21,10 @@ public class ShapeService {
     List<ShapeDTO> getShapesByType(String type) {
         List<Shape> shapes = shapeRepository.findByType(type);
         return shapes.stream().map(ShapeDTO::fromEntity).toList();
+        Shape shape = shapeMap.get(shapeRequest.getType());
+        shape.setPerimeters(shapeRequest.getPerimeters());
+        return shapeRepository.save(shape);
+
     }
 
     Shape updateShape(ShapeRequest shapeRequest, Long id) {

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 @Entity
 @Component("Circle")
 @DiscriminatorValue("Circle")
+@DiscriminatorValue("CIRCLE")
+
 public class Circle extends Shape {
 
     @Override

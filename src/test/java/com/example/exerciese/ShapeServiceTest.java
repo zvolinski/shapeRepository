@@ -6,15 +6,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
@@ -89,6 +88,7 @@ public class ShapeServiceTest {
 
         //When
         shapeService.updateShape(shapeRequest, circle.getId());
+        shapeService.saveShape(shapeRequest);
 
         //Then
         verify(shapeRepository, times(1)).save(any(Shape.class));

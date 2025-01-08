@@ -17,4 +17,3 @@ public interface ShapeRepository extends JpaRepository<Shape, Long> {
     List<Shape> findByType(@Param("type") String type);
 }
 
-

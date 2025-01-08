@@ -16,12 +16,16 @@ import org.springframework.stereotype.Component;
 @Component("Square")
 @Entity
 @DiscriminatorValue("Square")
+
 public class Square extends Shape {
 
     @Override
     public Shape clone() {
         return new Square();
     }
+
+@DiscriminatorValue("SQUARE")
+public class Square extends Shape {
 
     @Override
     public double calculateArea() {
