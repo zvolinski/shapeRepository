@@ -23,6 +23,14 @@ public class ShapeService {
         List<Shape> shapes = shapeRepository.findByType(type);
         return shapes.stream().map(ShapeDTO::fromEntity).toList();
     }
+
+    Shape updateShape(ShapeRequest shapeRequest, Long id) {
+        Shape updateShape = shapeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Shape with" + id + "not found"));
+        updateShape.setPerimeters(shapeRequest.getPerimeters());
+        return shapeRepository.save(updateShape);
+    }
+
 }
 
 
