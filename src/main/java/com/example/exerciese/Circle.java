@@ -16,7 +16,13 @@ import org.springframework.stereotype.Component;
 @Entity
 @Component("Circle")
 @DiscriminatorValue("CIRCLE")
+
 public class Circle extends Shape {
+
+    @Override
+    public Shape clone() {
+        return new Circle();
+    }
 
     @Override
     public double calculateArea() {

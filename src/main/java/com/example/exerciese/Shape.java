@@ -1,7 +1,6 @@
 package com.example.exerciese;
 
 
-import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.ElementCollection;
@@ -36,9 +35,9 @@ public abstract class Shape {
     private Long id;
 
     @ElementCollection
-    @Column(name = "perimeters")
     private List<Double> perimeters;
 
+    public abstract Shape clone();
     abstract double calculateArea();
     abstract double calculatePerimeter();
 

@@ -17,7 +17,14 @@ import org.springframework.stereotype.Component;
 @Entity
 @Component("Rectangle")
 @DiscriminatorValue("RECTANGLE")
+
 public class Rectangle extends Shape {
+
+    @Override
+    public Shape clone() {
+        return new Rectangle();
+    }
+
 
     @Override
     public double calculateArea() {
