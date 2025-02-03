@@ -35,7 +35,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-
             <exclusions>
                 <exclusion>
                     <groupId>org.junit.vintage</groupId>
@@ -73,7 +72,12 @@
             <version>26.3.0</version>
         </dependency>
     </dependencies>
-
+    <!--    <repositories>-->
+    <!--        <repository>-->
+    <!--            <id>central</id>-->
+    <!--            <url>https://repo.maven.apache.org/maven2</url>-->
+    <!--        </repository>-->
+    <!--    </repositories>-->
     <build>
         <plugins>
             <plugin>

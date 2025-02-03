@@ -15,10 +15,8 @@ import org.springframework.stereotype.Component;
 @SuperBuilder
 @Entity
 @Component("Circle")
-@DiscriminatorValue("CIRCLE")
-
+@DiscriminatorValue("Circle")
 public class Circle extends Shape {
-
     @Override
     public Shape clone() {
         return new Circle();

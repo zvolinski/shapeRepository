@@ -2,6 +2,7 @@ package com.example.exerciese;
 
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,6 @@ public class ShapeController {
     private final ShapeService shapeService;
 
 
-
     @PostMapping
     public ResponseEntity<?> saveShape(@RequestBody @Valid ShapeRequest shapeRequest) {
         var Shape = shapeService.saveShape(shapeRequest);
@@ -30,7 +30,7 @@ public class ShapeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ShapeDTO>> getShapesByType(@RequestParam String type) {
+    public ResponseEntity<List<ShapeDTO>> getShapesByType(@RequestParam @NotBlank String type) {
         List<ShapeDTO> shapes = shapeService.getShapesByType(type);
         return ResponseEntity.ok(shapes);
     }
