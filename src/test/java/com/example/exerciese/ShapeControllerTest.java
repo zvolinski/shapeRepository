@@ -1,6 +1,5 @@
 package com.example.exerciese;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,12 +87,10 @@ public class ShapeControllerTest {
         perimeters.add(6.0);
         shapeRequest.setPerimeters(perimeters);
 
-
         mockMvc.perform(post("/api/v1/shapes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(shapeRequest)))
                 .andExpect(status().isOk());
-
 
         mockMvc.perform(get("/api/v1/shapes")
                         .param("type", shapeRequest.getType())
@@ -102,6 +99,23 @@ public class ShapeControllerTest {
                 .andExpect(jsonPath("$[0].type").value("Circle"))
                 .andExpect(jsonPath("$[0].perimeters[0]").value(5.0))
                 .andExpect(jsonPath("$[0].perimeters[1]").value(6.0));
+    }
+
+    @Test
+    void itShouldNotGetShapeByType() throws Exception {
+
+        ShapeRequest shapeRequest = new ShapeRequest();
+        shapeRequest.setType(null);
+        List<Double> perimeters = new ArrayList<>();
+        perimeters.add(5.0);
+        perimeters.add(6.0);
+        shapeRequest.setPerimeters(perimeters);
+
+        mockMvc.perform(get("/api/v1/shapes")
+                        .param("type", shapeRequest.getType())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
     }
 
     @Test
@@ -149,6 +163,39 @@ public class ShapeControllerTest {
                 .andExpect(jsonPath("$[0].perimeters[1]").value(7.0));
     }
 
+    @Test
+    void itShouldNotUpdateShape() throws Exception {
+
+        ShapeRequest shapeRequest = new ShapeRequest();
+        shapeRequest.setType("Circle");
+        List<Double> perimeters = new ArrayList<>();
+        perimeters.add(5.0);
+        perimeters.add(6.0);
+        shapeRequest.setPerimeters(perimeters);
+
+
+        ShapeRequest updatedShape = new ShapeRequest();
+        updatedShape.setType("Rectangle");
+        List<Double> newPerimeters = new ArrayList<>();
+        newPerimeters.add(7.0);
+        newPerimeters.add(7.0);
+        updatedShape.setPerimeters(newPerimeters);
+
+        mockMvc.perform(post("/api/v1/shapes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shapeRequest)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/shapes")
+                        .param("type", shapeRequest.getType())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].type").value("Circle"))
+                .andExpect(jsonPath("$[0].perimeters[0]").value(5.0))
+                .andExpect(jsonPath("$[0].perimeters[1]").value(6.0));
+
+
+    }
 }
 
 
