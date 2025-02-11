@@ -24,7 +24,7 @@ public class ShapeValidator {
             throw new IllegalArgumentException("Type cannot be null or blank");
         }
         if (!shapeMap.containsKey(type)) {
-            throw new IllegalArgumentException("Invalid shape type " + type);
+            throw new IllegalArgumentException("Invalid shape for type : " + type);
         }
     }
 

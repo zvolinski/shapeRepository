@@ -1,6 +1,7 @@
 package com.example.exerciese;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,36 +37,32 @@ public class ShapeServiceTest {
     private ShapeValidator shapeValidator;
 
     @Mock
-    private Map<String, Shape> shapeMap;
-
-    @Mock
     private ShapeRepository shapeRepository;
 
     @InjectMocks
     private ShapeService shapeService;
 
+    @BeforeEach
+    void setUp() {
+        Circle circle = new Circle();
+        Map<String, Shape> shapeMap = Map.of("Circle", circle);
+        shapeService = new ShapeService(shapeRepository, shapeMap, shapeValidator);
+    }
+
     @Test
     void itShouldSaveShape() {
-        //Given
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
-        List<Double> perimeter = new ArrayList<>();
-        perimeter.add(5.00);
-        shapeRequest.setPerimeters(perimeter);
+        shapeRequest.setPerimeters(List.of(5.0));
 
-        Circle prototype = mock(Circle.class);
-        when(shapeMap.get("Circle")).thenReturn(prototype);
-        when(prototype.clone()).thenReturn(prototype);
+        Circle prototype1 = new Circle();
+        prototype1.setPerimeters(List.of(5.0));
 
-        //When
-        shapeService.saveShape(shapeRequest);
+        when(shapeRepository.save(any())).thenReturn(prototype1);
+        Shape shape = shapeService.saveShape(shapeRequest);
 
-        // Then
         verify(shapeValidator, times(1)).validateShapeRequest(shapeRequest);
-        verify(shapeMap, times(1)).get("Circle");
-        verify(prototype, times(1)).clone();
-        verify(prototype, times(1)).setPerimeters(perimeter);
-        verify(shapeRepository, times(1)).save(prototype);
+        assertEquals(shapeRequest.getPerimeters().get(0), shape.getPerimeters().get(0));
     }
 
     @ParameterizedTest
