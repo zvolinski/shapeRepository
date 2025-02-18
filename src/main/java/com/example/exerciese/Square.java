@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
 @SuperBuilder
 @Component("Square")
 @Entity
-@DiscriminatorValue("SQUARE")
-
+@DiscriminatorValue("Square")
 public class Square extends Shape {
 
     @Override

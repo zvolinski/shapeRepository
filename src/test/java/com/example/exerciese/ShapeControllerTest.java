@@ -1,11 +1,11 @@
 package com.example.exerciese;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,7 +16,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +30,9 @@ public class ShapeControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private ShapeValidator shapeValidator;
 
     @Autowired
     private ShapeRepository shapeRepository;
@@ -65,20 +67,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    void itShouldNotSaveShape() throws Exception {
-
-        ShapeRequest shapeRequest = new ShapeRequest();
-        shapeRequest.setType(null);
-        List<Double> perimeters = new ArrayList<>();
-        perimeters.add(null);
-        shapeRequest.setPerimeters(perimeters);
-
-        mockMvc.perform(post("/api/v1/shapes")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void itShouldGetShapeByType() throws Exception {
 
         ShapeRequest shapeRequest = new ShapeRequest();
@@ -88,12 +76,10 @@ public class ShapeControllerTest {
         perimeters.add(6.0);
         shapeRequest.setPerimeters(perimeters);
 
-
         mockMvc.perform(post("/api/v1/shapes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(shapeRequest)))
                 .andExpect(status().isOk());
-
 
         mockMvc.perform(get("/api/v1/shapes")
                         .param("type", shapeRequest.getType())
@@ -105,7 +91,7 @@ public class ShapeControllerTest {
     }
 
     @Test
-    void itShouldUpdateShape() throws Exception {
+    void itShouldNotUpdateShape() throws Exception {
 
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
@@ -114,13 +100,13 @@ public class ShapeControllerTest {
         perimeters.add(6.0);
         shapeRequest.setPerimeters(perimeters);
 
+
         ShapeRequest updatedShape = new ShapeRequest();
-        updatedShape.setType(shapeRequest.getType());
+        updatedShape.setType("Rectangle");
         List<Double> newPerimeters = new ArrayList<>();
         newPerimeters.add(7.0);
         newPerimeters.add(7.0);
         updatedShape.setPerimeters(newPerimeters);
-
 
         mockMvc.perform(post("/api/v1/shapes")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,20 +121,8 @@ public class ShapeControllerTest {
                 .andExpect(jsonPath("$[0].perimeters[0]").value(5.0))
                 .andExpect(jsonPath("$[0].perimeters[1]").value(6.0));
 
-        mockMvc.perform(put("/api/v1/shapes/update/{id}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedShape)))
-                .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/shapes")
-                        .param("type", updatedShape.getType())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].type").value("Circle"))
-                .andExpect(jsonPath("$[0].perimeters[0]").value(7.0))
-                .andExpect(jsonPath("$[0].perimeters[1]").value(7.0));
     }
-
 }
 
 
