@@ -1,7 +1,7 @@
 package com.example.exerciese;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ValidationException;
+import com.example.exerciese.exception.exception.ShapeInvalidIdException;
+import com.example.exerciese.exception.exception.ShapeNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,6 @@ public class ShapeService {
     private final Map<String, Shape> shapeMap;
     private final ShapeValidator shapeValidator;
 
-
     Shape saveShape(ShapeRequest shapeRequest) {
         shapeValidator.validateShapeRequest(shapeRequest); //Input data validation
         Shape prototype = shapeMap.get(shapeRequest.getType());
@@ -29,18 +28,16 @@ public class ShapeService {
 
         return Optional.of(shapeRepository.findByType(type))
                 .filter(shapes -> !shapes.isEmpty())
-                .orElseThrow(() -> new EntityNotFoundException("No shapes found for the specified type"))
+                .orElseThrow(() -> new ShapeNotFoundException("No shapes found for the specified type"))
                 .stream()
                 .map(ShapeDTO::fromEntity)
                 .toList();
     }
 
     Shape updateShape(ShapeRequest shapeRequest, Long id) {
-        if (id == null || id <= 0) {
-            throw new ValidationException("Invalid ID" + id);
-        }
+        shapeValidator.validateId(id);
         Shape updateShape = shapeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Shape with ID" + id + "not found"));
+                .orElseThrow(() -> new ShapeInvalidIdException("Shape with ID" + id + "not found"));
         shapeValidator.validateShapeRequest(shapeRequest);
         updateShape.setPerimeters(shapeRequest.getPerimeters());
         return shapeRepository.save(updateShape);

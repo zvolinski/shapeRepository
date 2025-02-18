@@ -1,6 +1,8 @@
 package com.example.exerciese;
 
-import jakarta.persistence.EntityNotFoundException;
+import com.example.exerciese.exception.exception.ShapeInvalidPerimetersException;
+import com.example.exerciese.exception.exception.ShapeInvalidTypeException;
+import com.example.exerciese.exception.exception.ShapeNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,7 +64,10 @@ public class ShapeServiceTest {
         Shape shape = shapeService.saveShape(shapeRequest);
 
         verify(shapeValidator, times(1)).validateShapeRequest(shapeRequest);
+
         assertEquals(shapeRequest.getPerimeters().get(0), shape.getPerimeters().get(0));
+        assertEquals(shapeRequest.getPerimeters().size(), shape.getPerimeters().size());
+        assertEquals(shapeRequest.getType(), shape.getClass().getSimpleName());
     }
 
     @ParameterizedTest
@@ -74,11 +79,12 @@ public class ShapeServiceTest {
         shapeRequest.setType("InvalidType"); // Invalid type
         shapeRequest.setPerimeters(List.of(5.00));
 
-        doThrow(new IllegalArgumentException("Invalid shape type"))
+        doThrow(new ShapeInvalidTypeException("Invalid shape type"))
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidTypeException.class, () -> shapeService.saveShape(shapeRequest));
+
         verify(shapeRepository, never()).save(any());
     }
 
@@ -86,14 +92,14 @@ public class ShapeServiceTest {
     void itShouldNotSaveShapeWhenTypeIsNull() {
         // Given
         ShapeRequest shapeRequest = new ShapeRequest();
-        shapeRequest.setType(null); // Type cannot be null
+        shapeRequest.setType(null);
         shapeRequest.setPerimeters(List.of(5.00));
 
-        doThrow(new IllegalArgumentException("Type cannot be null"))
+        doThrow(ShapeInvalidTypeException.class)
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidTypeException.class, () -> shapeService.saveShape(shapeRequest));
         verify(shapeRepository, never()).save(any());
     }
 
@@ -104,11 +110,11 @@ public class ShapeServiceTest {
         shapeRequest.setType("Circle");
         shapeRequest.setPerimeters(Collections.emptyList()); // Empty list
 
-        doThrow(new IllegalArgumentException("Perimeters cannot be empty"))
+        doThrow(new ShapeInvalidPerimetersException("Perimeters cannot be empty"))
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
         verify(shapeRepository, never()).save(any());
     }
 
@@ -119,11 +125,11 @@ public class ShapeServiceTest {
         shapeRequest.setType("Circle");
         shapeRequest.setPerimeters(null); // Perimeters cannot be null
 
-        doThrow(new IllegalArgumentException("Perimeters cannot be null"))
+        doThrow(new ShapeInvalidPerimetersException("Perimeters cannot be null"))
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
         verify(shapeRepository, never()).save(any());
     }
 
@@ -134,11 +140,11 @@ public class ShapeServiceTest {
         shapeRequest.setType("Circle");
         shapeRequest.setPerimeters(List.of(5.00, -2.00)); // Invalid perimeter
 
-        doThrow(new IllegalArgumentException("All perimeters must be positive numbers"))
+        doThrow(new ShapeInvalidPerimetersException("All perimeters must be positive numbers"))
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
         verify(shapeRepository, never()).save(any());
     }
 
@@ -158,6 +164,7 @@ public class ShapeServiceTest {
         shapeService.getShapesByType("Circle");
 
         verify(shapeRepository, times(1)).findByType("Circle");
+
         assertThat(shapes).containsExactly(circle, rectangle);
         assertEquals(circle.getPerimeters(), shapes.get(0).getPerimeters());
     }
@@ -173,7 +180,7 @@ public class ShapeServiceTest {
         when(shapeRepository.findByType(invalidType)).thenReturn(Collections.emptyList());
 
         // Throws exception when list in database is empty
-        assertThrows(EntityNotFoundException.class, () -> shapeService.getShapesByType(invalidType));
+        assertThrows(ShapeNotFoundException.class, () -> shapeService.getShapesByType(invalidType));
 
         //Verify that method is invoked once
         verify(shapeRepository, times(1)).findByType(invalidType);
@@ -186,11 +193,12 @@ public class ShapeServiceTest {
 
         when(shapeRepository.findByType(type)).thenReturn(Collections.emptyList());
 
-        assertThrows(EntityNotFoundException.class, () -> shapeService.getShapesByType(type));
+        assertThrows(ShapeNotFoundException.class, () -> shapeService.getShapesByType(type));
 
         verify(shapeRepository, times(1)).findByType(type);
     }
 
+    //To Do
     @Test
     void itShouldUpdateShape() {
         //Given
@@ -210,10 +218,12 @@ public class ShapeServiceTest {
         when(shapeRepository.findById(1L)).thenReturn(Optional.of(circle));
 
         //When
-        shapeService.updateShape(shapeRequest, circle.getId());
+        Shape updatedShape = shapeService.updateShape(shapeRequest, circle.getId());
 
         //Then
         verify(shapeRepository, times(1)).save(any(Shape.class));
         assertEquals(updatePerimeter, circle.getPerimeters());
+        assertEquals(shapeRequest.getPerimeters().get(0), updatedShape.getPerimeters().get(0));
+        assertEquals(shapeRequest.getType(), updatedShape.getClass().getSimpleName());
     }
 }

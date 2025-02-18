@@ -1,8 +1,6 @@
 package com.example.exerciese;
 
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,19 +22,19 @@ public class ShapeController {
 
 
     @PostMapping
-    public ResponseEntity<?> saveShape(@RequestBody @Valid ShapeRequest shapeRequest) {
-        var Shape = shapeService.saveShape(shapeRequest);
-        return ResponseEntity.ok().body(ShapeDTO.fromEntity(Shape));
+    public ResponseEntity<?> saveShape(@RequestBody ShapeRequest shapeRequest) {
+        Shape shape = shapeService.saveShape(shapeRequest);
+        return ResponseEntity.ok().body(ShapeDTO.fromEntity(shape));
     }
 
     @GetMapping
-    public ResponseEntity<List<ShapeDTO>> getShapesByType(@RequestParam @NotBlank String type) {
+    public ResponseEntity<List<ShapeDTO>> getShapesByType(@RequestParam String type) {
         List<ShapeDTO> shapes = shapeService.getShapesByType(type);
         return ResponseEntity.ok(shapes);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateShape(@PathVariable Long id, @RequestBody @Valid ShapeRequest shapeRequest) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateShape(@PathVariable Long id, @RequestBody ShapeRequest shapeRequest) {
         Shape updateShape = shapeService.updateShape(shapeRequest, id);
         return ResponseEntity.ok().body(ShapeDTO.fromEntity(updateShape));
     }
