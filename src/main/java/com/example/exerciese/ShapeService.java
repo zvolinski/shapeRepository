@@ -25,7 +25,6 @@ public class ShapeService {
     }
 
     List<ShapeDTO> getShapesByType(String type) {
-
         return Optional.of(shapeRepository.findByType(type))
                 .filter(shapes -> !shapes.isEmpty())
                 .orElseThrow(() -> new ShapeNotFoundException("No shapes found for the specified type"))

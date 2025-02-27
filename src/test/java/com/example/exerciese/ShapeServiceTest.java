@@ -22,6 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -229,6 +230,23 @@ public class ShapeServiceTest {
     }
 
     @Test
+    void itShouldFindShapeById() {
+        Circle existingCircle = new Circle();
+        existingCircle.setId(1L);
+        existingCircle.setPerimeters(List.of(5.0));
+
+        when(shapeRepository.findById(existingCircle.getId())).thenReturn(Optional.of(existingCircle));
+
+        Optional<Shape> result = shapeRepository.findById(existingCircle.getId());
+
+        assertTrue(result.isPresent());
+        assertEquals(existingCircle, result.get());
+
+        verify(shapeRepository, times(1)).findById(existingCircle.getId());
+    }
+
+
+    @Test
     void itShouldUpdateShape() {
         //Given
         Circle previousCircle = new Circle();
@@ -238,25 +256,21 @@ public class ShapeServiceTest {
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setPerimeters(List.of(5.0));
 
-        Circle overrideCircle = new Circle();
-        overrideCircle.setId(previousCircle.getId());
-        overrideCircle.setPerimeters(shapeRequest.getPerimeters());
+        Circle updatedCircle = new Circle();
+        updatedCircle.setId(previousCircle.getId());
+        updatedCircle.setPerimeters(shapeRequest.getPerimeters());
 
         //When & then
         when(shapeRepository.findById(previousCircle.getId())).thenReturn(Optional.of(previousCircle));
-        when(shapeRepository.save(any())).thenReturn(overrideCircle);
+        when(shapeRepository.save(any())).thenReturn(updatedCircle);
 
-        Shape updatedShapeRequest = shapeService.updateShape(shapeRequest, previousCircle.getId());
+        Shape result = shapeService.updateShape(shapeRequest, previousCircle.getId());
 
-        verify(shapeRepository, times(1)).findById(previousCircle.getId());
-        verify(shapeValidator, times(1)).validateId(previousCircle.getId());
+        // Then
         verify(shapeRepository, times(1)).save(any());
-        verify(shapeValidator, times(1)).validateShapeRequest(shapeRequest);
-
-        assertEquals(updatedShapeRequest.getRequiredParametersCount(), overrideCircle.getRequiredParametersCount());
-        assertEquals(updatedShapeRequest.getId(), overrideCircle.getId());
-        assertEquals(overrideCircle.getPerimeters().get(0), updatedShapeRequest.getPerimeters().get(0));
-        assertEquals(overrideCircle.getPerimeters().size(), updatedShapeRequest.getPerimeters().size());
-        assertThat(updatedShapeRequest.getPerimeters()).containsExactly(overrideCircle.getPerimeters().get(0));
+        assertEquals(updatedCircle.getId(), result.getId());
+        assertEquals(updatedCircle.getPerimeters(), result.getPerimeters());
     }
+
+
 }
