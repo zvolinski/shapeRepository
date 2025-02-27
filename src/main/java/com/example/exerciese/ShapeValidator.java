@@ -23,18 +23,11 @@ public class ShapeValidator {
     public void validateShapeRequest(ShapeRequest shapeRequest) {
         validateType(shapeRequest.getType());
         validatePerimeters(shapeRequest.getPerimeters());
+        validateRequiredParametersCount(shapeRequest);
     }
 
-
-//
-//    //Dla typu circle tabla ma posiadac nie wiecej, nie mniej jak jeden parametr// Dla innych tak samo(private valid) i publiczny konstruktor
-//    private void validateAmountOfPerimetersForCircle(Circle circle, List<Double>perimeters) {
-//        Optional.ofNullable(perimeters).stream().filter(pM -> pM.size() == 1)
-//                .filter(pM -> !perimeters.isEmpty())
-//    }
-
-
     private void validateType(String type) {
+        System.out.println("🔍 Sprawdzam typ: " + type);
         Optional.ofNullable(type)
                 .filter(t -> !t.isEmpty())
                 .filter(t -> shapeMap.containsKey(t))
@@ -57,4 +50,22 @@ public class ShapeValidator {
 
     }
 
+    private void validateRequiredParametersCount(ShapeRequest shapeRequest) {
+        Optional.ofNullable(shapeMap.get(shapeRequest.getType()))
+                .orElseThrow(() -> new ShapeInvalidTypeException("Nieznany typ figury: " + shapeRequest.getType()))
+                .getRequiredParametersCount();
+
+        int actual = shapeRequest.getPerimeters().size();
+
+        Optional.of(shapeMap.get(shapeRequest.getType()))
+                .map(Shape::getRequiredParametersCount)
+                .filter(expected -> expected == actual)
+                .orElseThrow(() -> new ShapeInvalidPerimetersException(
+                        "Niepoprawna liczba parametrów dla " + shapeRequest.getType() +
+                                ". Oczekiwano: " + shapeMap.get(shapeRequest.getType()).getRequiredParametersCount() +
+                                ", podano: " + actual
+                ));
+    }
+
 }
+

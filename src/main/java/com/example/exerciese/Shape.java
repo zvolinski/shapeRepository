@@ -37,6 +37,7 @@ public abstract class Shape {
     @ElementCollection
     private List<Double> perimeters;
 
+    public abstract int getRequiredParametersCount();
     public abstract Shape clone();
     abstract double calculateArea();
     abstract double calculatePerimeter();

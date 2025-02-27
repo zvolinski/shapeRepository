@@ -19,6 +19,11 @@ import org.springframework.stereotype.Component;
 public class Square extends Shape {
 
     @Override
+    public int getRequiredParametersCount() {
+        return 1;
+    }
+
+    @Override
     public Shape clone() {
         return new Square();
     }

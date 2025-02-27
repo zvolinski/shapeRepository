@@ -20,6 +20,11 @@ import org.springframework.stereotype.Component;
 public class Rectangle extends Shape {
 
     @Override
+    public int getRequiredParametersCount() {
+        return 2;
+    }
+
+    @Override
     public Shape clone() {
         return new Rectangle();
     }

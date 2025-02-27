@@ -1,5 +1,6 @@
 package com.example.exerciese;
 
+import com.example.exerciese.exception.exception.ShapeInvalidIdException;
 import com.example.exerciese.exception.exception.ShapeInvalidPerimetersException;
 import com.example.exerciese.exception.exception.ShapeInvalidTypeException;
 import com.example.exerciese.exception.exception.ShapeNotFoundException;
@@ -13,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +68,7 @@ public class ShapeServiceTest {
         assertEquals(shapeRequest.getPerimeters().get(0), shape.getPerimeters().get(0));
         assertEquals(shapeRequest.getPerimeters().size(), shape.getPerimeters().size());
         assertEquals(shapeRequest.getType(), shape.getClass().getSimpleName());
+        assertEquals(prototype1.getRequiredParametersCount(), shape.getRequiredParametersCount());
     }
 
     @ParameterizedTest
@@ -84,7 +85,6 @@ public class ShapeServiceTest {
 
         // When & Then
         assertThrows(ShapeInvalidTypeException.class, () -> shapeService.saveShape(shapeRequest));
-
         verify(shapeRepository, never()).save(any());
     }
 
@@ -149,13 +149,26 @@ public class ShapeServiceTest {
     }
 
     @Test
+    void itShouldNotSaveShapeWhenInvalidPerimetersContain() {
+        ShapeRequest shapeRequest = new ShapeRequest();
+        shapeRequest.setType("Circle");
+        shapeRequest.setPerimeters(List.of(5.0, 6.0));
+
+        doThrow(new ShapeInvalidPerimetersException("Incorrect quantity of perimeters for: " + shapeRequest.getType()))
+                .when(shapeValidator).validateShapeRequest(shapeRequest);
+
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
+        verify(shapeRepository, never()).save(any());
+    }
+
+    @Test
     void itShouldGetShapeByType() {
         //Given
         Shape circle = new Circle();
-        circle.setPerimeters(List.of(5.00, 6.00));
+        circle.setPerimeters(List.of(5.0));
 
         Shape rectangle = new Rectangle();
-        rectangle.setPerimeters(List.of(7.00, 8.00));
+        rectangle.setPerimeters(List.of(7.0, 8.0));
 
         List<Shape> shapes = List.of(circle, rectangle);
 
@@ -166,7 +179,10 @@ public class ShapeServiceTest {
         verify(shapeRepository, times(1)).findByType("Circle");
 
         assertThat(shapes).containsExactly(circle, rectangle);
+        assertEquals(rectangle.getPerimeters().size(), rectangle.getRequiredParametersCount());
+        assertEquals(circle.getPerimeters().size(), circle.getRequiredParametersCount());
         assertEquals(circle.getPerimeters(), shapes.get(0).getPerimeters());
+        assertEquals(rectangle.getPerimeters(), shapes.get(1).getPerimeters());
     }
 
     @ParameterizedTest
@@ -187,7 +203,7 @@ public class ShapeServiceTest {
     }
 
     @Test
-    void itShouldNotGetShape_WhenTypeIsNull() {
+    void itShouldThrowException_WhenTypeIsNull() {
         // Given
         String type = null;
 
@@ -198,32 +214,49 @@ public class ShapeServiceTest {
         verify(shapeRepository, times(1)).findByType(type);
     }
 
-    //To Do
+    @Test
+    void itShouldThrowException_WhenShapeNotFoundById() {
+        // Given
+        Long id = 99L;
+        ShapeRequest shapeRequest = new ShapeRequest();
+
+        when(shapeRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ShapeInvalidIdException.class, () -> shapeService.updateShape(shapeRequest, id));
+
+        verify(shapeRepository, times(1)).findById(id);
+    }
+
     @Test
     void itShouldUpdateShape() {
         //Given
-        Shape circle = new Circle();
-        circle.setId(1L);
-        List<Double> perimeter = new ArrayList<>();
-        perimeter.add(5.00);
-        circle.setPerimeters(perimeter);
+        Circle previousCircle = new Circle();
+        previousCircle.setId(1L);
+        previousCircle.setPerimeters(List.of(6.0));
 
         ShapeRequest shapeRequest = new ShapeRequest();
-        shapeRequest.setType("Circle");
-        List<Double> updatePerimeter = new ArrayList<>();
-        updatePerimeter.add(7.00);
-        shapeRequest.setPerimeters(updatePerimeter);
-        shapeValidator.validateShapeRequest(shapeRequest);
+        shapeRequest.setPerimeters(List.of(5.0));
 
-        when(shapeRepository.findById(1L)).thenReturn(Optional.of(circle));
+        Circle overrideCircle = new Circle();
+        overrideCircle.setId(previousCircle.getId());
+        overrideCircle.setPerimeters(shapeRequest.getPerimeters());
 
-        //When
-        Shape updatedShape = shapeService.updateShape(shapeRequest, circle.getId());
+        //When & then
+        when(shapeRepository.findById(previousCircle.getId())).thenReturn(Optional.of(previousCircle));
+        when(shapeRepository.save(any())).thenReturn(overrideCircle);
 
-        //Then
-        verify(shapeRepository, times(1)).save(any(Shape.class));
-        assertEquals(updatePerimeter, circle.getPerimeters());
-        assertEquals(shapeRequest.getPerimeters().get(0), updatedShape.getPerimeters().get(0));
-        assertEquals(shapeRequest.getType(), updatedShape.getClass().getSimpleName());
+        Shape updatedShapeRequest = shapeService.updateShape(shapeRequest, previousCircle.getId());
+
+        verify(shapeRepository, times(1)).findById(previousCircle.getId());
+        verify(shapeValidator, times(1)).validateId(previousCircle.getId());
+        verify(shapeRepository, times(1)).save(any());
+        verify(shapeValidator, times(1)).validateShapeRequest(shapeRequest);
+
+        assertEquals(updatedShapeRequest.getRequiredParametersCount(), overrideCircle.getRequiredParametersCount());
+        assertEquals(updatedShapeRequest.getId(), overrideCircle.getId());
+        assertEquals(overrideCircle.getPerimeters().get(0), updatedShapeRequest.getPerimeters().get(0));
+        assertEquals(overrideCircle.getPerimeters().size(), updatedShapeRequest.getPerimeters().size());
+        assertThat(updatedShapeRequest.getPerimeters()).containsExactly(overrideCircle.getPerimeters().get(0));
     }
 }

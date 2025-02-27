@@ -17,6 +17,12 @@ import org.springframework.stereotype.Component;
 @Component("Circle")
 @DiscriminatorValue("Circle")
 public class Circle extends Shape {
+
+    @Override
+    public int getRequiredParametersCount() {
+        return 1;
+    }
+
     @Override
     public Shape clone() {
         return new Circle();

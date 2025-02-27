@@ -67,6 +67,20 @@ public class ShapeControllerTest {
     }
 
     @Test
+    void itShouldThrowExceptionWhenShapeTypeIsInvalid() throws Exception {
+        // Given
+        ShapeRequest shapeRequest = new ShapeRequest();
+        shapeRequest.setType("Invalid"); // Niepoprawny typ
+        List<Double> perimeters = new ArrayList<>();
+        perimeters.add(5.0);
+        shapeRequest.setPerimeters(perimeters);
+
+        // When & Then
+
+
+    }
+
+    @Test
     void itShouldGetShapeByType() throws Exception {
 
         ShapeRequest shapeRequest = new ShapeRequest();
