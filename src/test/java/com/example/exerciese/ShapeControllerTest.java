@@ -67,20 +67,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    void itShouldThrowExceptionWhenShapeTypeIsInvalid() throws Exception {
-        // Given
-        ShapeRequest shapeRequest = new ShapeRequest();
-        shapeRequest.setType("Invalid"); // Niepoprawny typ
-        List<Double> perimeters = new ArrayList<>();
-        perimeters.add(5.0);
-        shapeRequest.setPerimeters(perimeters);
-
-        // When & Then
-
-
-    }
-
-    @Test
     void itShouldGetShapeByType() throws Exception {
 
         ShapeRequest shapeRequest = new ShapeRequest();
@@ -134,8 +120,6 @@ public class ShapeControllerTest {
                 .andExpect(jsonPath("$[0].type").value("Circle"))
                 .andExpect(jsonPath("$[0].perimeters[0]").value(5.0))
                 .andExpect(jsonPath("$[0].perimeters[1]").value(6.0));
-
-
     }
 }
 
