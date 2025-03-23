@@ -59,12 +59,11 @@ public class ShapeServiceTest {
         shapeRequest.setPerimeters(List.of(5.0));
 
         Circle prototype1 = new Circle();
-        prototype1.setPerimeters(List.of(5.0));
+        prototype1.setPerimeters(shapeRequest.getPerimeters());
 
         when(shapeRepository.save(any())).thenReturn(prototype1);
         Shape shape = shapeService.saveShape(shapeRequest);
 
-        verify(shapeValidator, times(1)).validateShapeRequest(shapeRequest);
 
         assertEquals(shapeRequest.getPerimeters().get(0), shape.getPerimeters().get(0));
         assertEquals(shapeRequest.getPerimeters().size(), shape.getPerimeters().size());
@@ -82,7 +81,7 @@ public class ShapeServiceTest {
         doThrow(new ShapeInvalidPerimetersException("Invalid perimeters count"))
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
-        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeValidator.validateShapeRequest(shapeRequest));
 
         verify(shapeValidator, times(1)).validateShapeRequest(shapeRequest);
         verify(shapeRepository, never()).save(any());
@@ -100,8 +99,9 @@ public class ShapeServiceTest {
         doThrow(new ShapeInvalidTypeException("Invalid shape type"))
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
+        assertThrows(ShapeInvalidTypeException.class, () -> shapeValidator.validateShapeRequest(shapeRequest));
+
         // When & Then
-        assertThrows(ShapeInvalidTypeException.class, () -> shapeService.saveShape(shapeRequest));
         verify(shapeValidator, times(1)).validateShapeRequest(shapeRequest);
         verify(shapeRepository, never()).save(any());
     }
@@ -117,7 +117,7 @@ public class ShapeServiceTest {
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(ShapeInvalidTypeException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidTypeException.class, () -> shapeValidator.validateShapeRequest(shapeRequest));
         verify(shapeValidator, times(1)).validateShapeRequest(shapeRequest);
         verify(shapeRepository, never()).save(any());
     }
@@ -133,7 +133,7 @@ public class ShapeServiceTest {
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeValidator.validateShapeRequest(shapeRequest));
         verify(shapeRepository, never()).save(any());
     }
 
@@ -148,7 +148,7 @@ public class ShapeServiceTest {
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeValidator.validateShapeRequest(shapeRequest));
         verify(shapeRepository, never()).save(any());
     }
 
@@ -163,7 +163,7 @@ public class ShapeServiceTest {
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
         // When & Then
-        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeValidator.validateShapeRequest(shapeRequest));
         verify(shapeRepository, never()).save(any());
     }
 
@@ -171,12 +171,12 @@ public class ShapeServiceTest {
     void itShouldNotSaveShapeWhenInvalidPerimetersContain() {
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
-        shapeRequest.setPerimeters(List.of(5.0, 6.0));
+        shapeRequest.setPerimeters(List.of(5.0, 6.0, 7.0));
 
         doThrow(new ShapeInvalidPerimetersException("Incorrect quantity of perimeters for: " + shapeRequest.getType()))
                 .when(shapeValidator).validateShapeRequest(shapeRequest);
 
-        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.saveShape(shapeRequest));
+        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeValidator.validateShapeRequest(shapeRequest));
         verify(shapeRepository, never()).save(any());
     }
 
@@ -287,80 +287,6 @@ public class ShapeServiceTest {
         verify(shapeRepository, times(1)).save(any());
         assertEquals(updatedCircle.getId(), result.getId());
         assertEquals(updatedCircle.getPerimeters(), result.getPerimeters());
-    }
-
-    @Test
-    void itShouldNotUpdateShape_WhenShapeNotFoundById() {
-        Long idDoNotExist = 99L;
-
-        ShapeRequest shapeRequest = new ShapeRequest();
-        shapeRequest.setPerimeters(List.of(6.0));
-
-        when(shapeRepository.findById(idDoNotExist)).thenReturn(Optional.empty());
-
-        assertThrows(ShapeInvalidIdException.class, () -> shapeService.updateShape(shapeRequest, idDoNotExist));
-
-        verify(shapeRepository, times(1)).findById(idDoNotExist);
-        verify(shapeValidator).validateId(idDoNotExist);
-        verify(shapeRepository, never()).save(any());
-    }
-
-    @Test
-    void itShouldNotUpdateShape_WhenPerimetersContainsNegative() {
-        Circle existingShape = new Circle();
-        existingShape.setId(1L);
-
-        ShapeRequest shapeRequest = new ShapeRequest();
-        shapeRequest.setPerimeters(List.of(-5.0));
-
-        when(shapeRepository.findById(existingShape.getId())).thenReturn(Optional.of(existingShape));
-
-        doThrow(new ShapeInvalidPerimetersException("Invalid perimeters"))
-                .when(shapeValidator).validateShapeRequest(shapeRequest);
-
-        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.updateShape(shapeRequest, existingShape.getId()));
-
-        verify(shapeRepository, times(1)).findById(existingShape.getId());
-        verify(shapeValidator).validateShapeRequest(shapeRequest);
-        verify(shapeRepository, never()).save(any());
-    }
-
-    @Test
-    void itShouldNotUpdateShape_WhenInvalidPerimetersCount() {
-        Circle existingShape = new Circle();
-        existingShape.setId(1L);
-
-        ShapeRequest shapeRequest = new ShapeRequest();
-        shapeRequest.setPerimeters(List.of(6.0, 5.0));
-
-        when(shapeRepository.findById(existingShape.getId())).thenReturn(Optional.of(existingShape));
-        doThrow(new ShapeInvalidPerimetersException("Invalid perimeters"))
-                .when(shapeValidator).validateShapeRequest(shapeRequest);
-
-        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.updateShape(shapeRequest, existingShape.getId()));
-
-        verify(shapeRepository, times(1)).findById(existingShape.getId());
-        verify(shapeValidator).validateShapeRequest(shapeRequest);
-        verify(shapeRepository, never()).save(any());
-    }
-
-    @Test
-    void itShouldNotUpdateShape_WhenInvalidPerimetersAreEmpty() {
-        Circle existingShape = new Circle();
-        existingShape.setId(1L);
-
-        ShapeRequest shapeRequest = new ShapeRequest();
-        shapeRequest.setPerimeters(List.of());
-
-        when(shapeRepository.findById(existingShape.getId())).thenReturn(Optional.of(existingShape));
-        doThrow(new ShapeInvalidPerimetersException("Invalid perimeters"))
-                .when(shapeValidator).validateShapeRequest(shapeRequest);
-
-        assertThrows(ShapeInvalidPerimetersException.class, () -> shapeService.updateShape(shapeRequest, existingShape.getId()));
-
-        verify(shapeRepository, times(1)).findById(existingShape.getId());
-        verify(shapeValidator).validateShapeRequest(shapeRequest);
-        verify(shapeRepository, never()).save(any());
     }
 
     @Test

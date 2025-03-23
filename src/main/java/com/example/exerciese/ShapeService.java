@@ -17,7 +17,6 @@ public class ShapeService {
     private final ShapeValidator shapeValidator;
 
     Shape saveShape(ShapeRequest shapeRequest) {
-        shapeValidator.validateShapeRequest(shapeRequest); //Input data validation
         Shape prototype = shapeMap.get(shapeRequest.getType());
         Shape shape = prototype.clone();
         shape.setPerimeters(shapeRequest.getPerimeters());
@@ -34,10 +33,8 @@ public class ShapeService {
     }
 
     Shape updateShape(ShapeRequest shapeRequest, Long id) {
-        shapeValidator.validateId(id);
         Shape updateShape = shapeRepository.findById(id)
-                .orElseThrow(() -> new ShapeInvalidIdException("Shape with ID" + id + "not found"));
-        shapeValidator.validateShapeRequest(shapeRequest);
+                .orElseThrow(() -> new ShapeInvalidIdException("Shape with ID " + id + " not found"));
         updateShape.setPerimeters(shapeRequest.getPerimeters());
         return shapeRepository.save(updateShape);
     }

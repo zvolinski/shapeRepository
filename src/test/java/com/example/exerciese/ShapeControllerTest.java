@@ -1,5 +1,6 @@
 package com.example.exerciese;
 
+import com.example.exerciese.exception.exception.ShapeInvalidTypeException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -68,7 +70,6 @@ public class ShapeControllerTest {
 
     @Test
     void itShouldGetShapeByType() throws Exception {
-
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
         List<Double> perimeters = new ArrayList<>();

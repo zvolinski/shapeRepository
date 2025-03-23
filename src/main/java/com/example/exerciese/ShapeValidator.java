@@ -11,13 +11,10 @@ import java.util.Optional;
 
 @Component
 public class ShapeValidator {
-
     private final Map<String, Shape> shapeMap;
-    private final ShapeService shapeService;
 
-    public ShapeValidator(Map<String, Shape> shapeMap, ShapeService shapeService) {
+    public ShapeValidator(Map<String, Shape> shapeMap) {
         this.shapeMap = shapeMap;
-        this.shapeService = shapeService;
     }
 
     public void validateShapeRequest(ShapeRequest shapeRequest) {
@@ -42,14 +39,6 @@ public class ShapeValidator {
 
     }
 
-    public void validateId(Long id) {
-        Optional.ofNullable(id)
-                .filter(i -> shapeMap.containsKey(i))
-                .filter(i -> i > 0 && shapeMap.get(i) != null)
-                .orElseThrow(() -> new ShapeInvalidIdException("Id cannot be null ,empty or must be one of " + shapeMap.keySet()));
-
-    }
-
     private void validateRequiredParametersCount(ShapeRequest shapeRequest) {
         Optional.ofNullable(shapeMap.get(shapeRequest.getType()))
                 .orElseThrow(() -> new ShapeInvalidTypeException("Nieznany typ figury: " + shapeRequest.getType()))
@@ -66,6 +55,5 @@ public class ShapeValidator {
                                 ", podano: " + actual
                 ));
     }
-
 }
 

@@ -20,7 +20,7 @@ public class Circle extends Shape {
 
     @Override
     public int getRequiredParametersCount() {
-        return 1;
+        return 2;
     }
 
     @Override

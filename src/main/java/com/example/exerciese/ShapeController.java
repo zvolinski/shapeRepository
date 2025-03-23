@@ -19,10 +19,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ShapeController {
     private final ShapeService shapeService;
+    private final ShapeValidator shapeValidator;
 
 
     @PostMapping
     public ResponseEntity<?> saveShape(@RequestBody ShapeRequest shapeRequest) {
+        shapeValidator.validateShapeRequest(shapeRequest);
         Shape shape = shapeService.saveShape(shapeRequest);
         return ResponseEntity.ok().body(ShapeDTO.fromEntity(shape));
     }
@@ -36,6 +38,7 @@ public class ShapeController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateShape(@PathVariable Long id, @RequestBody ShapeRequest shapeRequest) {
         Shape updateShape = shapeService.updateShape(shapeRequest, id);
+        shapeValidator.validateShapeRequest(shapeRequest);
         return ResponseEntity.ok().body(ShapeDTO.fromEntity(updateShape));
     }
 
