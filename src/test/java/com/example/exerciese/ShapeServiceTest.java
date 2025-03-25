@@ -64,7 +64,6 @@ public class ShapeServiceTest {
         when(shapeRepository.save(any())).thenReturn(prototype1);
         Shape shape = shapeService.saveShape(shapeRequest);
 
-
         assertEquals(shapeRequest.getPerimeters().get(0), shape.getPerimeters().get(0));
         assertEquals(shapeRequest.getPerimeters().size(), shape.getPerimeters().size());
         assertEquals(shapeRequest.getType(), shape.getClass().getSimpleName());
@@ -90,7 +89,7 @@ public class ShapeServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "\t", """
             """, ",'", "InvalidType"})
-    void itShouldNotSaveShapeWhenTypeIsInvalid() {
+    void itShouldThrowExceptionTypeIsInvalid() {
         // Given
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("InvalidType"); // Invalid type
@@ -107,7 +106,7 @@ public class ShapeServiceTest {
     }
 
     @Test
-    void itShouldNotSaveShapeWhenTypeIsNull() {
+    void itShouldThrowExceptionWhenTypeIsNull() {
         // Given
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType(null);
@@ -123,7 +122,7 @@ public class ShapeServiceTest {
     }
 
     @Test
-    void itShouldNotSaveShapeWhenPerimetersAreEmpty() {
+    void itShouldThrowExceptionWhenPerimetersAreEmpty() {
         // Given
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
@@ -138,7 +137,7 @@ public class ShapeServiceTest {
     }
 
     @Test
-    void itShouldNotSaveShapeWhenPerimetersAreNull() {
+    void itShouldThrowExceptionWhenPerimetersAreNull() {
         // Given
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
@@ -153,7 +152,7 @@ public class ShapeServiceTest {
     }
 
     @Test
-    void itShouldNotSaveShapeWhenPerimetersContainNegative() {
+    void itShouldThrowExceptionWhenPerimetersContainNegative() {
         // Given
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
@@ -168,7 +167,7 @@ public class ShapeServiceTest {
     }
 
     @Test
-    void itShouldNotSaveShapeWhenInvalidPerimetersContain() {
+    void itShouldThrowExceptionWhenInvalidPerimetersContain() {
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
         shapeRequest.setPerimeters(List.of(5.0, 6.0, 7.0));
@@ -207,7 +206,7 @@ public class ShapeServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "\t", """
             """, ",'", "InvalidType"})
-    void itShouldNotGetShape_BecauseTypeIsInvalid() {
+    void itShouldThrowException_BecauseTypeIsInvalid() {
 
         String invalidType = "InvalidType";//Invalid data to search in database
 
