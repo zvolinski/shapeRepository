@@ -31,6 +31,7 @@ public class ShapeController {
 
     @GetMapping
     public ResponseEntity<List<ShapeDTO>> getShapesByType(@RequestParam String type) {
+        shapeValidator.validationTypeForGET(type);
         List<ShapeDTO> shapes = shapeService.getShapesByType(type);
         return ResponseEntity.ok(shapes);
     }

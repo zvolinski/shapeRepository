@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class ShapeServiceTest {
     void setUp() {
         Circle circle = new Circle();
         Map<String, Shape> shapeMap = Map.of("Circle", circle);
-        shapeService = new ShapeService(shapeRepository, shapeMap, shapeValidator);
+        shapeService = new ShapeService(shapeRepository, shapeMap);
     }
 
     @Test
@@ -183,7 +184,7 @@ public class ShapeServiceTest {
     void itShouldGetShapeByType() {
         //Given
         Shape circle = new Circle();
-        circle.setPerimeters(List.of(5.0));
+        circle.setPerimeters(List.of(5.0, 5.0));
 
         Shape rectangle = new Rectangle();
         rectangle.setPerimeters(List.of(7.0, 8.0));

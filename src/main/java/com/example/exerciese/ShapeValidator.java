@@ -3,6 +3,7 @@ package com.example.exerciese;
 import com.example.exerciese.exception.exception.ShapeInvalidIdException;
 import com.example.exerciese.exception.exception.ShapeInvalidPerimetersException;
 import com.example.exerciese.exception.exception.ShapeInvalidTypeException;
+import com.example.exerciese.exception.exception.ShapeNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,6 +22,10 @@ public class ShapeValidator {
         validateType(shapeRequest.getType());
         validatePerimeters(shapeRequest.getPerimeters());
         validateRequiredParametersCount(shapeRequest);
+    }
+
+    public void validationTypeForGET(String type){
+        validateType(type);
     }
 
     private void validateType(String type) {

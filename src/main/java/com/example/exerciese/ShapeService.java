@@ -14,7 +14,6 @@ import java.util.Optional;
 public class ShapeService {
     private final ShapeRepository shapeRepository;
     private final Map<String, Shape> shapeMap;
-    private final ShapeValidator shapeValidator;
 
     Shape saveShape(ShapeRequest shapeRequest) {
         Shape prototype = shapeMap.get(shapeRequest.getType());
