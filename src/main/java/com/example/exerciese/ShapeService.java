@@ -1,10 +1,13 @@
 package com.example.exerciese;
 
+import com.example.exerciese.exception.exception.ShapeInvalidIdException;
+import com.example.exerciese.exception.exception.ShapeNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,17 +23,19 @@ public class ShapeService {
     }
 
     List<ShapeDTO> getShapesByType(String type) {
-        List<Shape> shapes = shapeRepository.findByType(type);
-        return shapes.stream().map(ShapeDTO::fromEntity).toList();
+        return Optional.of(shapeRepository.findByType(type))
+                .filter(shapes -> !shapes.isEmpty())
+                .orElseThrow(() -> new ShapeNotFoundException("No shapes found for the specified type"))
+                .stream()
+                .map(ShapeDTO::fromEntity)
+                .toList();
     }
 
     Shape updateShape(ShapeRequest shapeRequest, Long id) {
         Shape updateShape = shapeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Shape with" + id + "not found"));
+                .orElseThrow(() -> new ShapeInvalidIdException("Shape with ID " + id + " not found"));
         updateShape.setPerimeters(shapeRequest.getPerimeters());
         return shapeRepository.save(updateShape);
     }
-
 }
-
 

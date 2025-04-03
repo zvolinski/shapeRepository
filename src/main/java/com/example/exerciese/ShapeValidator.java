@@ -1,0 +1,64 @@
+package com.example.exerciese;
+
+import com.example.exerciese.exception.exception.ShapeInvalidIdException;
+import com.example.exerciese.exception.exception.ShapeInvalidPerimetersException;
+import com.example.exerciese.exception.exception.ShapeInvalidTypeException;
+import com.example.exerciese.exception.exception.ShapeNotFoundException;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Component
+public class ShapeValidator {
+    private final Map<String, Shape> shapeMap;
+
+    public ShapeValidator(Map<String, Shape> shapeMap) {
+        this.shapeMap = shapeMap;
+    }
+
+    public void validateShapeRequest(ShapeRequest shapeRequest) {
+        validateType(shapeRequest.getType());
+        validatePerimeters(shapeRequest.getPerimeters());
+        validateRequiredParametersCount(shapeRequest);
+    }
+
+    public void validationTypeForGET(String type){
+        validateType(type);
+    }
+
+    private void validateType(String type) {
+        System.out.println("🔍 Sprawdzam typ: " + type);
+        Optional.ofNullable(type)
+                .filter(t -> !t.isEmpty())
+                .filter(t -> shapeMap.containsKey(t))
+                .orElseThrow(() -> new ShapeInvalidTypeException("Type cannot be null or blank, or must be one of " + shapeMap.keySet()));
+    }
+
+    private void validatePerimeters(List<Double> perimeters) {
+        Optional.ofNullable(perimeters)
+                .filter(pM -> !pM.isEmpty()) // Sprawdza, czy lista nie jest pusta
+                .filter(pM -> pM.stream().allMatch(p -> p != null && p > 0)) // Sprawdza poprawność wartości
+                .orElseThrow(() -> new ShapeInvalidPerimetersException("Perimeters cannot be null, empty, or contain non-positive numbers"));
+
+    }
+
+    private void validateRequiredParametersCount(ShapeRequest shapeRequest) {
+        Optional.ofNullable(shapeMap.get(shapeRequest.getType()))
+                .orElseThrow(() -> new ShapeInvalidTypeException("Nieznany typ figury: " + shapeRequest.getType()))
+                .getRequiredParametersCount();
+
+        int actual = shapeRequest.getPerimeters().size();
+
+        Optional.of(shapeMap.get(shapeRequest.getType()))
+                .map(Shape::getRequiredParametersCount)
+                .filter(expected -> expected == actual)
+                .orElseThrow(() -> new ShapeInvalidPerimetersException(
+                        "Niepoprawna liczba parametrów dla " + shapeRequest.getType() +
+                                ". Oczekiwano: " + shapeMap.get(shapeRequest.getType()).getRequiredParametersCount() +
+                                ", podano: " + actual
+                ));
+    }
+}
+
