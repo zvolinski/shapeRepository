@@ -174,6 +174,39 @@ public class ShapeControllerTest {
     }
 
     @Test
+    void itShouldNotUpdateShapeBecauseEntityNotFoundById() throws Exception {
+        ShapeRequest shapeRequest = new ShapeRequest();
+        shapeRequest.setType("Circle");
+        List<Double> perimeters = new ArrayList<>();
+        perimeters.add(5.0);
+        perimeters.add(6.0);
+        shapeRequest.setPerimeters(perimeters);
+
+        Long id = 99L;
+
+        mockMvc.perform(post("/api/v1/shapes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shapeRequest)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        mockMvc.perform(get("/api/v1/shapes")
+                        .param("type", shapeRequest.getType())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].type").value("Circle"))
+                .andExpect(jsonPath("$[0].perimeters[0]").value(5.0))
+                .andExpect(jsonPath("$[0].perimeters[1]").value(6.0));
+
+        mockMvc.perform(put("/api/v1/shapes/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
     void itShouldNotGetShapeBecauseTypeIsNull() throws Exception {
         ShapeRequest shapeRequest = new ShapeRequest();
         shapeRequest.setType("Circle");
